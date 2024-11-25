@@ -64,7 +64,7 @@ To run the application, ensure the following:
 1. **Clone the Repository**
    ```bash
    git clone https://github.com/danaespentz/Task-Management-System.git
-   cd task-management-application
+   cd Task-Management-System
    ```
 
 2. **Compile the Application**
