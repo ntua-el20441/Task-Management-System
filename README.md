@@ -82,10 +82,10 @@ To run the application, ensure the following:
 
 4. **Save and Load Data**
 
-    1. **Application Initialization**  
-   - During startup, the application retrieves all information stored in JSON files.
-   - It initializes the corresponding objects in memory based on the data retrieved.
-
-    2. **Application Termination**
-   - Before closing, the application updates the JSON files with the current state of the system.
-   - It saves the complete state of the application to ensure all changes made during the session are preserved.
+  **Application Initialization**  
+  - During startup, the application retrieves all information stored in JSON files.
+  - It initializes the corresponding objects in memory based on the data retrieved.
+  
+  **Application Termination**
+  - Before closing, the application updates the JSON files with the current state of the system.
+  - It saves the complete state of the application to ensure all changes made during the session are preserved.
