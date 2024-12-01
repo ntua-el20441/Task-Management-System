@@ -171,6 +171,7 @@ public class TaskManagement {
         addReminderButton.setOnAction(e -> {
             String reminderType = reminderTypeComboBox.getValue();
             String deadline = deadlineField.getText();
+
             if (deadline.isEmpty()) {
                 Alert alert = new Alert(Alert.AlertType.ERROR, "Please enter a valid deadline before adding reminders.", ButtonType.OK);
                 alert.showAndWait();
@@ -208,32 +209,6 @@ public class TaskManagement {
                 Reminder newReminder = new Reminder(reminderDate, newTask.getId());
                 newTask.addReminder(newReminder);
                 reminders.add(newReminder);
-            }
-
-            Category existingCategory = categories.stream()
-                    .filter(cat -> cat.getName().equals(category))
-                    .findFirst()
-                    .orElse(null);
-
-            if (existingCategory == null) {
-                Category newCategory = new Category(category);
-                newCategory.getTasks().add(newTask);
-                categories.add(newCategory);
-            } else {
-                existingCategory.getTasks().add(newTask);
-            }
-
-            Priority existingPriority = priorities.stream()
-                    .filter(pri -> pri.getName().equals(priority))
-                    .findFirst()
-                    .orElse(null);
-
-            if (existingPriority == null) {
-                Priority newPriority = new Priority(priority);
-                newPriority.getTasks().add(newTask);
-                priorities.add(newPriority);
-            } else {
-                existingPriority.getTasks().add(newTask);
             }
 
             primaryStage.setScene(getScene(primaryStage, tasks, categories, priorities, reminders));
@@ -310,9 +285,16 @@ public class TaskManagement {
 
         Button addReminderButton = new Button("Add Reminder");
         addReminderButton.setOnAction(e -> {
+            if (taskToEdit.getStatus() == Task.Status.COMPLETED) {
+                Alert alert = new Alert(Alert.AlertType.WARNING, "Cannot add reminders to a completed task.", ButtonType.OK);
+                alert.showAndWait();
+                return;
+            }
+
             String reminderType = reminderTypeComboBox.getValue();
             String deadline = taskToEdit.getDeadline();
             String reminderDate = calculateReminderDate(reminderType, deadline, customDateField.getText());
+
             if (reminderDate != null) {
                 Reminder newReminder = new Reminder(reminderDate, taskToEdit.getId());
                 taskToEdit.addReminder(newReminder);

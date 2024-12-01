@@ -13,14 +13,12 @@ import models.Task;
 import models.Category;
 import models.Priority;
 import models.Reminder;
-import storage.ReminderLoader;
-import storage.TaskLoader;
-import storage.CategoryLoader;
-import storage.PriorityLoader;
+import storage.Loader;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
 
 public class Main extends Application {
@@ -31,10 +29,10 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        tasks = TaskLoader.loadTasksFromJson("medialab/tasks.json");
-        categories = CategoryLoader.loadCategoriesFromJson("medialab/categories.json");
-        priorities = PriorityLoader.loadPrioritiesFromJson("medialab/priorities.json");
-        reminders = ReminderLoader.loadRemindersFromJson("medialab/reminders.json");
+        tasks = Loader.loadFromJson("medialab/tasks.json", new TypeReference<List<Task>>() {});
+        categories = Loader.loadFromJson("medialab/categories.json", new TypeReference<List<Category>>() {});
+        priorities = Loader.loadFromJson("medialab/priorities.json", new TypeReference<List<Priority>>() {});
+        reminders = Loader.loadFromJson("medialab/reminders.json", new TypeReference<List<Reminder>>() {});
 
         if (tasks == null) tasks = new ArrayList<>();
         if (categories == null) categories = new ArrayList<>();
@@ -46,10 +44,10 @@ public class Main extends Application {
         primaryStage.show();
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            TaskLoader.saveTasksToJson("medialab/tasks.json", tasks);
-            CategoryLoader.saveCategoriesToJson("medialab/categories.json", categories);
-            PriorityLoader.savePrioritiesToJson("medialab/priorities.json", priorities);
-            ReminderLoader.saveRemindersToJson("medialab/reminders.json", reminders);
+            Loader.saveToJson("medialab/tasks.json", tasks);
+            Loader.saveToJson("medialab/categories.json", categories);
+            Loader.saveToJson("medialab/priorities.json", priorities);
+            Loader.saveToJson("medialab/reminders.json", reminders);
             System.out.println("Data saved successfully!");
         }));
     }
