@@ -1,6 +1,9 @@
 # Welcome to the Task Management System
 
-The **Task Management System** is a powerful and intuitive Java application designed to streamline your task organization. With features like task categorization, reminders, priorities, and status tracking, this tool makes managing your daily responsibilities a breeze.
+**This project was developed as part of a university project for the Multimedia Technologies course.**
+
+
+The **Task Management System** is a powerful and intuitive Java application designed to streamline your task organization. With features like task categorization, reminders, priorities, and status tracking, this tool helps you managing your daily responsibilities.
 
 ---
 
