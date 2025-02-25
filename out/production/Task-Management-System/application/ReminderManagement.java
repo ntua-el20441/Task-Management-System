@@ -24,22 +24,20 @@ public class ReminderManagement {
         });
 
         Label titleLabel = new Label("Reminder Management");
-        titleLabel.setStyle("-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: white;");
+        titleLabel.setStyle("-fx-font-size: 32; -fx-font-weight: bold; -fx-text-fill: #2E4053;");
 
         HBox titleBox = new HBox(titleLabel);
         titleBox.setAlignment(javafx.geometry.Pos.CENTER);
-        titleBox.setStyle("-fx-padding: 20px; -fx-background-color: #121212;");
+        titleBox.setStyle("-fx-padding: 20; -fx-background-color: #F8F9F9;");
 
         BorderPane topPane = new BorderPane();
         topPane.setLeft(backButton);
         topPane.setCenter(titleBox);
-        topPane.setStyle("-fx-background-color: #121212;");
 
         layout.setTop(topPane);
 
         VBox content = new VBox();
-        content.setSpacing(15);
-        content.setStyle("-fx-padding: 20px; -fx-background-color: #121212;");
+        content.setSpacing(20);
 
         List<Task> tasksWithReminders = tasks.stream()
                 .filter(task -> !task.getReminders().isEmpty())
@@ -47,32 +45,32 @@ public class ReminderManagement {
 
         for (Task task : tasksWithReminders) {
             BorderPane taskBox = new BorderPane();
-            taskBox.setStyle("-fx-background-color: #1E1E1E; -fx-border-color: #3498db; -fx-border-width: 2px; -fx-padding: 10px; -fx-border-radius: 10px;");
+            taskBox.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #D5D8DC; -fx-border-radius: 5; -fx-padding: 10;");
 
             Label taskLabel = new Label("Task: " + task.getTitle());
-            taskLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: white;");
+            taskLabel.setStyle("-fx-font-size: 18; -fx-text-fill: #2E4053;");
 
             VBox remindersBox = new VBox();
             remindersBox.setSpacing(10);
-            remindersBox.setStyle("-fx-padding: 10px;");
+            remindersBox.setStyle("-fx-padding: 10;");
 
             for (Reminder reminder : task.getReminders()) {
                 BorderPane reminderBox = new BorderPane();
-                reminderBox.setStyle("-fx-background-color: #1E1E1E; -fx-border-color: #3498db; -fx-border-width: 1px; -fx-padding: 5px; -fx-border-radius: 5px;");
+                reminderBox.setStyle("-fx-background-color: #FBFCFC; -fx-border-color: #D5D8DC; -fx-border-radius: 5; -fx-padding: 5;");
 
                 Label reminderLabel = new Label("Reminder: " + reminder.getDate());
-                reminderLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: white;");
+                reminderLabel.setStyle("-fx-font-size: 16; -fx-text-fill: #2E4053;");
                 reminderBox.setLeft(reminderLabel);
 
                 HBox actionButtons = new HBox(10);
-                actionButtons.setStyle("-fx-padding: 5px;");
+                actionButtons.setStyle("-fx-padding: 5;");
 
                 Button editButton = new Button("EDIT");
-                editButton.setStyle("-fx-font-size: 16px; -fx-background-color: transparent; -fx-text-fill: #2ecc71;");
+                editButton.setStyle("-fx-font-size: 16; -fx-background-color: transparent; -fx-border: none; -fx-text-fill: #1E8449;");
                 editButton.setOnAction(e -> openEditReminderForm(primaryStage, tasks, categories, priorities, reminders, task, reminder));
 
                 Button deleteButton = new Button("REMOVE");
-                deleteButton.setStyle("-fx-font-size: 16px; -fx-background-color: transparent; -fx-text-fill: #e74c3c;");
+                deleteButton.setStyle("-fx-font-size: 16; -fx-background-color: transparent; -fx-border: none; -fx-text-fill: #922B21;");
                 deleteButton.setOnAction(e -> {
                     task.getReminders().remove(reminder);
                     updateTaskInCategoriesAndPriorities(categories, priorities, task);
@@ -92,35 +90,35 @@ public class ReminderManagement {
 
         if (tasksWithReminders.isEmpty()) {
             Label noRemindersLabel = new Label("No reminders available.");
-            noRemindersLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #7F8C8D;");
+            noRemindersLabel.setStyle("-fx-font-size: 16; -fx-text-fill: #2E4053;");
             content.getChildren().add(noRemindersLabel);
         }
 
+        content.setStyle("-fx-padding: 20; -fx-background-color: #FBFCFC;");
         ScrollPane scrollPane = new ScrollPane(content);
         scrollPane.setFitToWidth(true);
-        scrollPane.setStyle("-fx-background: #121212; -fx-background-color: #121212;");
+        scrollPane.setStyle("-fx-background-color: transparent;");
 
         layout.setCenter(scrollPane);
 
-        return new Scene(layout, 1400, 900);
+        return new Scene(layout, 800, 600);
     }
 
     private static void openEditReminderForm(Stage primaryStage, List<Task> tasks, List<Category> categories, List<Priority> priorities, List<Reminder> reminders, Task task, Reminder reminderToEdit) {
         VBox formLayout = new VBox();
         formLayout.setSpacing(15);
-        formLayout.setStyle("-fx-padding: 20px; -fx-background-color: #121212;");
+        formLayout.setStyle("-fx-padding: 20;");
 
         String formTitleText = "Edit Reminder";
         Label formTitle = new Label(formTitleText);
-        formTitle.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;");
+        formTitle.setStyle("-fx-font-size: 24; -fx-font-weight: bold;");
 
         TextField reminderDateField = new TextField();
         reminderDateField.setPromptText("Reminder Date (yyyy-MM-dd)");
-        reminderDateField.setStyle("-fx-background-color: #1E1E1E; -fx-text-fill: white; -fx-prompt-text-fill: #7F8C8D;");
         reminderDateField.setText(reminderToEdit.getDate());
 
         Button saveButton = new Button("Save");
-        saveButton.setStyle("-fx-font-size: 16px; -fx-padding: 10px; -fx-background-color: #2ecc71; -fx-text-fill: white; -fx-border-radius: 5px; -fx-background-radius: 5px;");
+        saveButton.setStyle("-fx-font-size: 16; -fx-padding: 10; -fx-background-color: #1E8449; -fx-text-fill: white; -fx-border-radius: 5; -fx-background-radius: 5;");
         saveButton.setOnAction(e -> {
             String newDate = reminderDateField.getText();
             LocalDate taskDeadline = LocalDate.parse(task.getDeadline());
@@ -147,15 +145,16 @@ public class ReminderManagement {
         });
 
         Button cancelButton = new Button("Cancel");
-        cancelButton.setStyle("-fx-font-size: 16px; -fx-padding: 10px; -fx-background-color: #e74c3c; -fx-text-fill: white; -fx-border-radius: 5px; -fx-background-radius: 5px;");
+        cancelButton.setStyle("-fx-font-size: 16; -fx-padding: 10; -fx-background-color: #922B21; -fx-text-fill: white; -fx-border-radius: 5; -fx-background-radius: 5;");
         cancelButton.setOnAction(e -> primaryStage.setScene(getScene(primaryStage, tasks, categories, priorities, reminders)));
 
         HBox buttonBox = new HBox(10, saveButton, cancelButton);
+        buttonBox.setStyle("-fx-padding: 10;");
         buttonBox.setAlignment(javafx.geometry.Pos.BASELINE_LEFT);
 
         formLayout.getChildren().addAll(formTitle, reminderDateField, buttonBox);
 
-        Scene formScene = new Scene(formLayout, 1400, 900);
+        Scene formScene = new Scene(formLayout, 800, 600);
         primaryStage.setScene(formScene);
     }
 
@@ -169,4 +168,3 @@ public class ReminderManagement {
                 .forEach(t -> t.setReminders(task.getReminders())));
     }
 }
-

@@ -21,131 +21,126 @@ public class TaskManagement {
     public static Scene getScene(Stage primaryStage, List<Task> tasks, List<Category> categories, List<Priority> priorities, List<Reminder> reminders) {
         BorderPane layout = new BorderPane();
 
-        BackButton backButton = new BackButton(primaryStage, () -> {
-            primaryStage.setScene(new Main().getMainScene(primaryStage, tasks, categories, priorities, reminders));
-        });
+        BackButton backButton = new BackButton(primaryStage, () -> primaryStage.setScene(new Main().getMainScene(primaryStage, tasks, categories, priorities, reminders)));
 
-        Label titleLabel = new Label("Task Management");
-        titleLabel.setStyle("-fx-font-size: 32; -fx-font-weight: bold; -fx-text-fill: #2E4053;");
+        Label titleLabel = createStyledLabel("Task Management", "-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: white;");
 
-        HBox titleBox = new HBox(titleLabel);
-        titleBox.setAlignment(javafx.geometry.Pos.CENTER);
-        titleBox.setStyle("-fx-padding: 20; -fx-background-color: #F8F9F9;");
+        HBox titleBox = createAlignedHBox(javafx.geometry.Pos.CENTER, "-fx-padding: 20px; -fx-background-color: #1E1E1E;", titleLabel);
 
-        Button addTaskButton = new Button("New Task");
-        addTaskButton.setStyle("-fx-font-size: 16; -fx-padding: 10; -fx-background-color: #566573; -fx-text-fill: white; -fx-border-radius: 5; -fx-background-radius: 5;");
-        addTaskButton.setOnAction(e -> openAddTaskForm(primaryStage, tasks, categories, priorities, reminders));
+        Button addTaskButton = createStyledButton("New Task", "-fx-font-size: 16px; -fx-padding: 10px 20px; -fx-background-color: #3498db; -fx-text-fill: white; -fx-border-radius: 20px; -fx-background-radius: 20px;", e -> openAddTaskForm(primaryStage, tasks, categories, priorities, reminders));
 
-        HBox topRightBox = new HBox(addTaskButton);
-        topRightBox.setAlignment(javafx.geometry.Pos.TOP_RIGHT);
-        topRightBox.setStyle("-fx-padding: 20 20 0 0;");
+        HBox topRightBox = createAlignedHBox(javafx.geometry.Pos.TOP_RIGHT, "-fx-padding: 20px 20px 0px 0px;", addTaskButton);
 
         BorderPane topPane = new BorderPane();
         topPane.setLeft(backButton);
         topPane.setCenter(titleBox);
         topPane.setRight(topRightBox);
+        topPane.setStyle("-fx-background-color: #121212;");
 
         layout.setTop(topPane);
 
-        VBox content = new VBox();
-        content.setSpacing(20);
+        VBox content = createStyledVBox(20, "-fx-padding: 20px; -fx-background-color: #121212; -fx-min-height: 6000px; ");
 
-        Map<String, List<Task>> tasksByCategory = tasks.stream()
-                .collect(Collectors.groupingBy(Task::getCategory));
+        Map<String, List<Task>> tasksByCategory = groupTasksByCategory(tasks);
 
-        for (Map.Entry<String, List<Task>> entry : tasksByCategory.entrySet()) {
-            String category = entry.getKey();
-            List<Task> tasksInCategory = entry.getValue();
+        tasksByCategory.forEach((category, tasksInCategory) -> {
+            Label categoryLabel = createStyledLabel(category, "-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #e0e0e0;");
 
-            Label categoryLabel = new Label(category);
-            categoryLabel.setStyle("-fx-font-size: 18; -fx-font-weight: bold;");
+            VBox tasksBox = createStyledVBox(10, "-fx-padding: 10px; -fx-background-color: #1E1E1E; -fx-border-color: #3498db; -fx-border-radius: 8px; -fx-border-width: 2px;");
 
-            VBox tasksBox = new VBox();
-            tasksBox.setSpacing(10);
-            tasksBox.setStyle("-fx-padding: 10;");
+            tasksInCategory.forEach(task -> {
+                BorderPane taskBox = createStyledBorderPane("-fx-background-color: #2C2C2C; -fx-border-color: #3498db; -fx-border-width: 2px; -fx-border-radius: 5px; -fx-padding: 10px;");
 
-            for (Task task : tasksInCategory) {
-                BorderPane taskBox = new BorderPane();
-                taskBox.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #D5D8DC; -fx-border-radius: 5; -fx-padding: 5;");
-
-                Label taskLabel = new Label(task.getTitle() + ": " + task.getDescription() + " (ID: " + task.getId() + ")");
-                taskLabel.setStyle("-fx-font-size: 16; -fx-text-fill: #2E4053;");
+                Label taskLabel = createStyledLabel(task.getTitle() + ": " + task.getDescription() + " (ID: " + task.getId() + ")", "-fx-font-size: 16px; -fx-text-fill: white;");
                 taskBox.setLeft(taskLabel);
 
-                HBox actionButtons = new HBox(10);
-                actionButtons.setStyle("-fx-padding: 5;");
+                Button deleteButton = createStyledButton("REMOVE", "-fx-font-size: 14px; -fx-background-color: #e74c3c; -fx-text-fill: white; -fx-border-radius: 5px; -fx-background-radius: 5px;", e -> handleTaskRemoval(primaryStage, tasks, categories, priorities, reminders, task));
 
-                Button deleteButton = new Button("REMOVE");
-                deleteButton.setStyle("-fx-font-size: 16; -fx-background-color: transparent; -fx-border: none; -fx-text-fill: #922B21;");
-                deleteButton.setOnAction(e -> {
-                    tasks.remove(task);
+                Button editButton = createStyledButton("VIEW/EDIT", "-fx-font-size: 14px; -fx-background-color: #2ecc71; -fx-text-fill: white; -fx-border-radius: 5px; -fx-background-radius: 5px;", e -> openEditTaskForm(primaryStage, tasks, categories, priorities, reminders, task));
 
-                    for (Category cat : categories) {
-                        cat.getTasks().removeIf(t -> t.equals(task));
-                    }
-
-                    for (Priority priority : priorities) {
-                        priority.getTasks().removeIf(t -> t.equals(task));
-                    }
-
-                    if (reminders != null) {
-                        reminders.removeIf(reminder -> reminder.getTaskId() == task.getId());
-                    }
-
-                    primaryStage.setScene(getScene(primaryStage, tasks, categories, priorities, reminders));
-                });
-
-                Button editButton = new Button("VIEW/EDIT");
-                editButton.setStyle("-fx-font-size: 16; -fx-background-color: transparent; -fx-border: none; -fx-text-fill: #1E8449;");
-                editButton.setOnAction(e -> openEditTaskForm(primaryStage, tasks, categories, priorities, reminders, task));
-
-                actionButtons.getChildren().addAll(editButton, deleteButton);
+                HBox actionButtons = createAlignedHBox(javafx.geometry.Pos.CENTER_RIGHT, "-fx-padding: 5px;", editButton, deleteButton);
                 taskBox.setRight(actionButtons);
 
                 tasksBox.getChildren().add(taskBox);
-            }
+            });
 
             content.getChildren().addAll(categoryLabel, tasksBox);
-        }
+        });
 
-        content.setStyle("-fx-padding: 20; -fx-background-color: #FBFCFC;");
-
-        ScrollPane scrollPane = new ScrollPane(content);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setStyle("-fx-background-color: transparent;");
-
+        ScrollPane scrollPane = createStyledScrollPane(content);
         layout.setCenter(scrollPane);
 
-        return new Scene(layout, 800, 600);
+        return new Scene(layout, 1400, 900);
+    }
+
+    private static Map<String, List<Task>> groupTasksByCategory(List<Task> tasks) {
+        return tasks.stream().collect(Collectors.groupingBy(Task::getCategory));
+    }
+
+    private static void handleTaskRemoval(Stage primaryStage, List<Task> tasks, List<Category> categories, List<Priority> priorities, List<Reminder> reminders, Task task) {
+        tasks.remove(task);
+        categories.forEach(cat -> cat.getTasks().removeIf(t -> t.equals(task)));
+        priorities.forEach(priority -> priority.getTasks().removeIf(t -> t.equals(task)));
+        if (reminders != null) reminders.removeIf(reminder -> reminder.getTaskId() == task.getId());
+        primaryStage.setScene(getScene(primaryStage, tasks, categories, priorities, reminders));
+    }
+
+    private static Label createStyledLabel(String text, String style) {
+        Label label = new Label(text);
+        label.setStyle(style);
+        return label;
+    }
+
+    private static Button createStyledButton(String text, String style, javafx.event.EventHandler<javafx.event.ActionEvent> action) {
+        Button button = new Button(text);
+        button.setStyle(style);
+        button.setOnAction(action);
+        return button;
+    }
+
+    private static HBox createAlignedHBox(javafx.geometry.Pos alignment, String style, javafx.scene.Node... children) {
+        HBox hbox = new HBox(children);
+        hbox.setAlignment(alignment);
+        hbox.setStyle(style);
+        return hbox;
+    }
+
+    private static VBox createStyledVBox(int spacing, String style) {
+        VBox vbox = new VBox();
+        vbox.setSpacing(spacing);
+        vbox.setStyle(style);
+        return vbox;
+    }
+
+    private static BorderPane createStyledBorderPane(String style) {
+        BorderPane pane = new BorderPane();
+        pane.setStyle(style);
+        return pane;
+    }
+
+    private static ScrollPane createStyledScrollPane(javafx.scene.Node content) {
+        ScrollPane scrollPane = new ScrollPane(content);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+        return scrollPane;
     }
 
     private static void openAddTaskForm(Stage primaryStage, List<Task> tasks, List<Category> categories, List<Priority> priorities, List<Reminder> reminders) {
         VBox formLayout = new VBox();
         formLayout.setSpacing(15);
-        formLayout.setStyle("-fx-padding: 20;");
+        formLayout.setStyle("-fx-padding: 20px; -fx-background-color: #121212;");
 
-        Label formTitle = new Label("Add New Task");
-        formTitle.setStyle("-fx-font-size: 24; -fx-font-weight: bold;");
+        Label formTitle = createStyledLabel("Add New Task", "-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;");
 
-        TextField titleField = new TextField();
-        titleField.setPromptText("Task Title");
+        TextField titleField = createStyledTextField("Task Title");
+        TextField descriptionField = createStyledTextField("Task Description");
+        TextField categoryField = createStyledTextField("Category");
+        TextField priorityField = createStyledTextField("Priority (e.g., High, Medium, Low)");
+        TextField deadlineField = createStyledTextField("Deadline (yyyy-MM-dd)");
 
-        TextField descriptionField = new TextField();
-        descriptionField.setPromptText("Task Description");
-
-        TextField categoryField = new TextField();
-        categoryField.setPromptText("Category");
-
-        TextField priorityField = new TextField();
-        priorityField.setPromptText("Priority (e.g., High, Medium, Low)");
-
-        TextField deadlineField = new TextField();
-        deadlineField.setPromptText("Deadline (yyyy-MM-dd)");
-
-        VBox remindersBox = new VBox();
-        remindersBox.setSpacing(10);
-        Label reminderLabel = new Label("Reminders");
-        ComboBox<String> reminderTypeComboBox = new ComboBox<>();
+        VBox remindersBox = createStyledVBox(10, "");
+        Label reminderLabel = createStyledLabel("Reminders", "-fx-font-size: 16px; -fx-text-fill: white;");
+        ComboBox<String> reminderTypeComboBox = createStyledComboBox();
         reminderTypeComboBox.getItems().addAll(
             "One day before",
             "One week before",
@@ -153,8 +148,7 @@ public class TaskManagement {
             "Custom date"
         );
 
-        TextField customDateField = new TextField();
-        customDateField.setPromptText("Custom Reminder Date (yyyy-MM-dd)");
+        TextField customDateField = createStyledTextField("Custom Reminder Date (yyyy-MM-dd)");
         customDateField.setDisable(true);
 
         reminderTypeComboBox.setOnAction(e -> {
@@ -167,8 +161,7 @@ public class TaskManagement {
 
         List<String> pendingReminders = new ArrayList<>();
 
-        Button addReminderButton = new Button("Add Reminder");
-        addReminderButton.setOnAction(e -> {
+        Button addReminderButton = createStyledButton("Add Reminder", "-fx-font-size: 14px; -fx-background-color: #3498db; -fx-text-fill: white; -fx-border-radius: 5px; -fx-background-radius: 5px;", e -> {
             String reminderType = reminderTypeComboBox.getValue();
             String deadline = deadlineField.getText();
 
@@ -181,15 +174,13 @@ public class TaskManagement {
             String reminderDate = calculateReminderDate(reminderType, deadline, customDateField.getText());
             if (reminderDate != null) {
                 pendingReminders.add(reminderDate);
-                remindersBox.getChildren().add(new Label("Reminder added for: " + reminderDate));
+                remindersBox.getChildren().add(createStyledLabel("Reminder added for: " + reminderDate, "-fx-text-fill: white;"));
             }
         });
 
         remindersBox.getChildren().addAll(reminderLabel, reminderTypeComboBox, customDateField, addReminderButton);
 
-        Button saveButton = new Button("Save Task");
-        saveButton.setStyle("-fx-font-size: 16; -fx-padding: 10; -fx-background-color: #1E8449; -fx-text-fill: white; -fx-border-radius: 5; -fx-background-radius: 5;");
-        saveButton.setOnAction(e -> {
+        Button saveButton = createStyledButton("Save Task", "-fx-font-size: 16px; -fx-padding: 10px; -fx-background-color: #2ecc71; -fx-text-fill: white; -fx-border-radius: 5px; -fx-background-radius: 5px;", e -> {
             String title = titleField.getText();
             String description = descriptionField.getText();
             String category = categoryField.getText();
@@ -214,199 +205,27 @@ public class TaskManagement {
             primaryStage.setScene(getScene(primaryStage, tasks, categories, priorities, reminders));
         });
 
-        Button cancelButton = new Button("Cancel");
-        cancelButton.setStyle("-fx-font-size: 16; -fx-padding: 10; -fx-background-color: #922B21; -fx-text-fill: white; -fx-border-radius: 5; -fx-background-radius: 5;");
-        cancelButton.setOnAction(e -> primaryStage.setScene(getScene(primaryStage, tasks, categories, priorities, reminders)));
+        Button cancelButton = createStyledButton("Cancel", "-fx-font-size: 16px; -fx-padding: 10px; -fx-background-color: #e74c3c; -fx-text-fill: white; -fx-border-radius: 5px; -fx-background-radius: 5px;", e -> primaryStage.setScene(getScene(primaryStage, tasks, categories, priorities, reminders)));
 
-        HBox buttonBox = new HBox(10, saveButton, cancelButton);
-        buttonBox.setAlignment(javafx.geometry.Pos.BASELINE_LEFT);
+        HBox buttonBox = createAlignedHBox(javafx.geometry.Pos.BASELINE_LEFT, "", saveButton, cancelButton);
 
         formLayout.getChildren().addAll(formTitle, titleField, descriptionField, categoryField, priorityField, deadlineField, remindersBox, buttonBox);
 
-        Scene formScene = new Scene(formLayout, 800, 600);
+        Scene formScene = new Scene(formLayout, 1400, 900);
         primaryStage.setScene(formScene);
     }
 
-    private static void openEditTaskForm(Stage primaryStage, List<Task> tasks, List<Category> categories, List<Priority> priorities, List<Reminder> reminders, Task taskToEdit) {
-        VBox formLayout = new VBox();
-        formLayout.setSpacing(15);
-        formLayout.setStyle("-fx-padding: 20;");
+    private static TextField createStyledTextField(String promptText) {
+        TextField textField = new TextField();
+        textField.setPromptText(promptText);
+        textField.setStyle("-fx-background-color: #1E1E1E; -fx-text-fill: white; -fx-prompt-text-fill: #7F8C8D; -fx-border-color: #3498db; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-padding: 5px;");
+        return textField;
+    }
 
-        Label formTitle = new Label("Edit Task");
-        formTitle.setStyle("-fx-font-size: 24; -fx-font-weight: bold;");
-
-        TextField titleField = new TextField(taskToEdit.getTitle());
-        titleField.setPromptText("Task Title");
-
-        TextField descriptionField = new TextField(taskToEdit.getDescription());
-        descriptionField.setPromptText("Task Description");
-
-        TextField categoryField = new TextField(taskToEdit.getCategory());
-        categoryField.setPromptText("Category");
-
-        TextField priorityField = new TextField(taskToEdit.getPriority());
-        priorityField.setPromptText("Priority (e.g., High, Medium, Low)");
-
-        TextField deadlineField = new TextField(taskToEdit.getDeadline());
-        deadlineField.setPromptText("Deadline (yyyy-MM-dd)");
-
-        Label statusLabel = new Label("Task Status:");
-        ComboBox<Task.Status> statusComboBox = new ComboBox<>();
-        statusComboBox.getItems().addAll(Task.Status.values());
-        statusComboBox.setValue(taskToEdit.getStatus());
-
-        VBox remindersBox = new VBox();
-        remindersBox.setSpacing(10);
-        Label reminderLabel = new Label("Reminders");
-        ComboBox<String> reminderTypeComboBox = new ComboBox<>();
-        reminderTypeComboBox.getItems().addAll(
-            "One day before",
-            "One week before",
-            "One month before",
-            "Custom date"
-        );
-
-        TextField customDateField = new TextField();
-        customDateField.setPromptText("Custom Reminder Date (yyyy-MM-dd)");
-        customDateField.setDisable(true);
-
-        reminderTypeComboBox.setOnAction(e -> {
-            if ("Custom date".equals(reminderTypeComboBox.getValue())) {
-                customDateField.setDisable(false);
-            } else {
-                customDateField.setDisable(true);
-            }
-        });
-
-        taskToEdit.getReminders().forEach(reminder -> {
-            Label reminderEntry = new Label(reminder.getDate());
-            remindersBox.getChildren().add(reminderEntry);
-        });
-
-        Button addReminderButton = new Button("Add Reminder");
-        addReminderButton.setOnAction(e -> {
-            if (taskToEdit.getStatus() == Task.Status.COMPLETED) {
-                Alert alert = new Alert(Alert.AlertType.WARNING, "Cannot add reminders to a completed task.", ButtonType.OK);
-                alert.showAndWait();
-                return;
-            }
-
-            String reminderType = reminderTypeComboBox.getValue();
-            String deadline = taskToEdit.getDeadline();
-            String reminderDate = calculateReminderDate(reminderType, deadline, customDateField.getText());
-
-            if (reminderDate != null) {
-                Reminder newReminder = new Reminder(reminderDate, taskToEdit.getId());
-                taskToEdit.addReminder(newReminder);
-                reminders.add(newReminder);
-                remindersBox.getChildren().add(new Label(reminderDate));
-            }
-        });
-
-        remindersBox.getChildren().addAll(reminderLabel, reminderTypeComboBox, customDateField, addReminderButton);
-
-        statusComboBox.setOnAction(e -> {
-            if (statusComboBox.getValue() == Task.Status.COMPLETED) {
-                remindersBox.setDisable(true);
-            } else {
-                remindersBox.setDisable(false);
-            }
-        });
-
-        Button saveButton = new Button("Save Task");
-        saveButton.setStyle("-fx-font-size: 16; -fx-padding: 10; -fx-background-color: #1E8449; -fx-text-fill: white; -fx-border-radius: 5; -fx-background-radius: 5;");
-        saveButton.setOnAction(e -> {
-            String title = titleField.getText();
-            String description = descriptionField.getText();
-            String category = categoryField.getText();
-            String priority = priorityField.getText();
-            String deadline = deadlineField.getText();
-            Task.Status status = statusComboBox.getValue();
-
-            if (title.isEmpty() || description.isEmpty() || category.isEmpty() || priority.isEmpty() || deadline.isEmpty() || status == null) {
-                Alert alert = new Alert(Alert.AlertType.ERROR, "All fields are required!", ButtonType.OK);
-                alert.showAndWait();
-                return;
-            }
-
-            String oldCategory = taskToEdit.getCategory();
-            String oldPriority = taskToEdit.getPriority();
-
-            categories.stream()
-                .filter(cat -> cat.getName().equals(oldCategory))
-                .findFirst()
-                .ifPresent(cat -> cat.getTasks().remove(taskToEdit));
-
-            priorities.stream()
-                .filter(pri -> pri.getName().equals(oldPriority))
-                .findFirst()
-                .ifPresent(pri -> pri.getTasks().remove(taskToEdit));
-
-            taskToEdit.setTitle(title);
-            taskToEdit.setDescription(description);
-            taskToEdit.setCategory(category);
-            taskToEdit.setPriority(priority);
-            taskToEdit.setDeadline(deadline);
-            taskToEdit.setStatus(status);
-
-            taskToEdit.getReminders().clear();
-            reminders.removeIf(reminder -> reminder.getTaskId() == taskToEdit.getId());
-
-            if (status == Task.Status.COMPLETED) {
-                reminders.removeIf(reminder -> reminder.getTaskId() == taskToEdit.getId());
-                taskToEdit.getReminders().clear();
-            } else {
-                remindersBox.getChildren().stream()
-                    .filter(node -> node instanceof Label)
-                    .map(node -> ((Label) node).getText())
-                    .filter(reminderDate -> !reminderDate.equals("Reminders"))
-                    .forEach(reminderDate -> {
-                        Reminder newReminder = new Reminder(reminderDate, taskToEdit.getId());
-                        taskToEdit.addReminder(newReminder);
-                        reminders.add(newReminder);
-                    });
-            }
-
-            Category existingCategory = categories.stream()
-                    .filter(cat -> cat.getName().equals(category))
-                    .findFirst()
-                    .orElse(null);
-
-            if (existingCategory == null) {
-                Category newCategory = new Category(category);
-                newCategory.getTasks().add(taskToEdit);
-                categories.add(newCategory);
-            } else {
-                existingCategory.getTasks().add(taskToEdit);
-            }
-
-            Priority existingPriority = priorities.stream()
-                    .filter(pri -> pri.getName().equals(priority))
-                    .findFirst()
-                    .orElse(null);
-
-            if (existingPriority == null) {
-                Priority newPriority = new Priority(priority);
-                newPriority.getTasks().add(taskToEdit);
-                priorities.add(newPriority);
-            } else {
-                existingPriority.getTasks().add(taskToEdit);
-            }
-
-            primaryStage.setScene(getScene(primaryStage, tasks, categories, priorities, reminders));
-        });
-
-        Button cancelButton = new Button("Cancel");
-        cancelButton.setStyle("-fx-font-size: 16; -fx-padding: 10; -fx-background-color: #922B21; -fx-text-fill: white; -fx-border-radius: 5; -fx-background-radius: 5;");
-        cancelButton.setOnAction(e -> primaryStage.setScene(getScene(primaryStage, tasks, categories, priorities, reminders)));
-
-        HBox buttonBox = new HBox(10, saveButton, cancelButton);
-        buttonBox.setAlignment(javafx.geometry.Pos.BASELINE_LEFT);
-
-        formLayout.getChildren().addAll(formTitle, titleField, descriptionField, categoryField, priorityField, deadlineField, statusLabel, statusComboBox, remindersBox, buttonBox);
-
-        Scene formScene = new Scene(formLayout, 800, 600);
-        primaryStage.setScene(formScene);
+    private static ComboBox<String> createStyledComboBox() {
+        ComboBox<String> comboBox = new ComboBox<>();
+        comboBox.setStyle("-fx-background-color: #1E1E1E; -fx-text-fill: white; -fx-border-color: #3498db; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-padding: 5px;");
+        return comboBox;
     }
 
     private static String calculateReminderDate(String reminderType, String deadline, String customDate) {
@@ -439,4 +258,51 @@ public class TaskManagement {
         }
     }
 
+    private static void openEditTaskForm(Stage primaryStage, List<Task> tasks, List<Category> categories, List<Priority> priorities, List<Reminder> reminders, Task taskToEdit) {
+        VBox formLayout = new VBox();
+        formLayout.setSpacing(15);
+        formLayout.setStyle("-fx-padding: 20px; -fx-background-color: #121212;");
+
+        Label formTitle = createStyledLabel("Edit Task", "-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;");
+
+        TextField titleField = createStyledTextField(taskToEdit.getTitle());
+        TextField descriptionField = createStyledTextField(taskToEdit.getDescription());
+        TextField categoryField = createStyledTextField(taskToEdit.getCategory());
+        TextField priorityField = createStyledTextField(taskToEdit.getPriority());
+        TextField deadlineField = createStyledTextField(taskToEdit.getDeadline());
+
+        ComboBox<Task.Status> statusComboBox = new ComboBox<>();
+        statusComboBox.getItems().addAll(Task.Status.values());
+        statusComboBox.setValue(taskToEdit.getStatus());
+        statusComboBox.setStyle("-fx-background-color: #1E1E1E; -fx-text-fill: white; -fx-border-color: #3498db; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-padding: 5px;");
+
+        VBox remindersBox = createStyledVBox(10, "");
+        Label reminderLabel = createStyledLabel("Reminders", "-fx-font-size: 16px; -fx-text-fill: white;");
+
+        taskToEdit.getReminders().forEach(reminder -> {
+            Label reminderEntry = createStyledLabel("Reminder: " + reminder.getDate(), "-fx-text-fill: white;");
+            remindersBox.getChildren().add(reminderEntry);
+        });
+
+        Button saveButton = createStyledButton("Save Changes", "-fx-font-size: 16px; -fx-padding: 10px; -fx-background-color: #2ecc71; -fx-text-fill: white; -fx-border-radius: 5px; -fx-background-radius: 5px;", e -> {
+            taskToEdit.setTitle(titleField.getText());
+            taskToEdit.setDescription(descriptionField.getText());
+            taskToEdit.setCategory(categoryField.getText());
+            taskToEdit.setPriority(priorityField.getText());
+            taskToEdit.setDeadline(deadlineField.getText());
+            taskToEdit.setStatus(statusComboBox.getValue());
+
+            primaryStage.setScene(getScene(primaryStage, tasks, categories, priorities, reminders));
+        });
+
+        Button cancelButton = createStyledButton("Cancel", "-fx-font-size: 16px; -fx-padding: 10px; -fx-background-color: #e74c3c; -fx-text-fill: white; -fx-border-radius: 5px; -fx-background-radius: 5px;", e -> primaryStage.setScene(getScene(primaryStage, tasks, categories, priorities, reminders)));
+
+        HBox buttonBox = createAlignedHBox(javafx.geometry.Pos.BASELINE_LEFT, "", saveButton, cancelButton);
+
+        formLayout.getChildren().addAll(formTitle, titleField, descriptionField, categoryField, priorityField, deadlineField, statusComboBox, remindersBox, buttonBox);
+
+        Scene formScene = new Scene(formLayout, 1400, 900);
+        primaryStage.setScene(formScene);
+    }
 }
+

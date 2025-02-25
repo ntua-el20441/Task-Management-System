@@ -5,9 +5,15 @@ import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import models.Task;
 import models.Category;
@@ -40,7 +46,7 @@ public class Main extends Application {
         if (reminders == null) reminders = new ArrayList<>();
 
         primaryStage.setScene(getMainScene(primaryStage));
-        primaryStage.setTitle("MediaLab Assistant");
+        primaryStage.setTitle("DarkFlow");
         primaryStage.show();
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -53,100 +59,129 @@ public class Main extends Application {
     }
 
     public Scene getMainScene(Stage primaryStage) {
-        return getMainScene(primaryStage, this.tasks, this.categories, this.priorities, this.reminders);
+        BorderPane mainLayout = new BorderPane();
+
+        VBox header = createHeader();
+        mainLayout.setTop(header);
+
+        ScrollPane dashboard = createDashboard();
+        mainLayout.setCenter(dashboard);
+
+        HBox footer = createFooter(primaryStage);
+        mainLayout.setBottom(footer);
+
+        return new Scene(mainLayout, 1400, 900);
     }
 
     public Scene getMainScene(Stage primaryStage, List<Task> tasks, List<Category> categories, List<Priority> priorities, List<Reminder> reminders) {
-        BorderPane mainLayout = new BorderPane();
-
         this.tasks = tasks;
         this.categories = categories;
         this.priorities = priorities;
         this.reminders = reminders;
-
-        VBox topSection = createTaskSummary();
-        mainLayout.setTop(topSection);
-
-        VBox bottomSection = createVerticalButtons(primaryStage);
-        mainLayout.setCenter(bottomSection);
-
-        return new Scene(mainLayout, 800, 600);
+        return getMainScene(primaryStage);
     }
 
-    private VBox createVerticalButtons(Stage primaryStage) {
-        VBox buttonSection = new VBox();
-        buttonSection.setAlignment(Pos.CENTER);
-        buttonSection.setSpacing(20);
+    private VBox createHeader() {
+        VBox header = new VBox();
+        header.setAlignment(Pos.CENTER);
+        header.setSpacing(10);
+        header.setStyle("-fx-background-color: #121212; -fx-padding: 20px;");
 
-        StyledButton searchTasksButton = new StyledButton("Search for a task");
-        StyledButton taskManagementButton = new StyledButton("Task Management");
-        StyledButton categoryManagementButton = new StyledButton("Category Management");
-        StyledButton priorityManagementButton = new StyledButton("Priority Management");
-        StyledButton reminderManagementButton = new StyledButton("Reminder Management");
+        Text title = new Text("MediaLab");
+        title.setFont(Font.font("Sans Serif", FontWeight.EXTRA_BOLD, 40));
+        title.setFill(Color.WHITE);
 
-        taskManagementButton.setOnAction(e -> primaryStage.setScene(TaskManagement.getScene(primaryStage, this.tasks, this.categories, this.priorities, this.reminders)));
-        categoryManagementButton.setOnAction(e -> primaryStage.setScene(CategoryManagement.getScene(primaryStage, this.tasks, this.categories, this.priorities, this.reminders)));
-        priorityManagementButton.setOnAction(e -> primaryStage.setScene(PriorityManagement.getScene(primaryStage, this.tasks, this.categories, this.priorities, this.reminders)));
-        reminderManagementButton.setOnAction(e -> primaryStage.setScene(ReminderManagement.getScene(primaryStage, this.tasks, this.categories, this.priorities, this.reminders)));
-        searchTasksButton.setOnAction(e -> primaryStage.setScene(SearchTab.getScene(primaryStage, this.tasks, this.categories, this.priorities, this.reminders)));
+        Text subtitle = new Text("Your Personal Assistant");
+        subtitle.setFont(Font.font("Sans Serif", FontWeight.LIGHT, 18));
+        subtitle.setFill(Color.GRAY);
 
-        buttonSection.getChildren().addAll(searchTasksButton, taskManagementButton, categoryManagementButton, priorityManagementButton, reminderManagementButton);
-
-        return buttonSection;
+        header.getChildren().addAll(title, subtitle);
+        return header;
     }
 
-    private VBox createTaskSummary() {
-        VBox topSection = new VBox();
-        topSection.setAlignment(Pos.CENTER);
-        topSection.setSpacing(30);
-        topSection.setStyle("-fx-padding: 60 0 0 0;");
+    private ScrollPane createDashboard() {
+        ScrollPane dashboardScrollPane = new ScrollPane();
+        dashboardScrollPane.setFitToWidth(true);
+        dashboardScrollPane.setStyle("-fx-background: #121212; -fx-padding: 20px;");
 
-        HBox statsRow = new HBox();
-        statsRow.setAlignment(Pos.CENTER);
-        statsRow.setSpacing(50);
+        GridPane dashboard = new GridPane();
+        dashboard.setHgap(20);
+        dashboard.setVgap(20);
+        dashboard.setAlignment(Pos.CENTER);
+        dashboard.setStyle("-fx-background-color: #1E1E1E; -fx-padding: 20px; -fx-border-radius: 10px; -fx-background-radius: 10px;");
 
-        statsRow.getChildren().addAll(
-                createStatBox("Total", getTotalTasks(), "#003366"),
-                createStatBox("Completed", getTasksByStatus(Task.Status.COMPLETED), "#004c99"),
-                createStatBox("Delayed", getTasksByStatus(Task.Status.DELAYED), "#dc3545"),
-                createStatBox("Due Within 7 Days", getTasksDueIn7Days(), "#007B83")
-        );
+        dashboard.add(createStatCard("Total Tasks", getTotalTasks(), "#3498db"), 0, 0);
+        dashboard.add(createStatCard("Completed", getTasksByStatus(Task.Status.COMPLETED), "#3498db"), 1, 0);
+        dashboard.add(createStatCard("Overdue", getTasksByStatus(Task.Status.DELAYED), "#3498db"), 0, 1);
+        dashboard.add(createStatCard("Due Soon", getTasksDueIn7Days(), "#3498db"), 1, 1);
 
-        topSection.getChildren().add(statsRow);
-        return topSection;
+        dashboardScrollPane.setContent(dashboard);
+        return dashboardScrollPane;
     }
 
-    private VBox createStatBox(String label, int number, String color) {
-        VBox statBox = new VBox();
-        statBox.setAlignment(Pos.CENTER);
-        statBox.setSpacing(8);
+    private VBox createStatCard(String label, int count, String color) {
+        VBox statCard = new VBox();
+        statCard.setAlignment(Pos.CENTER);
+        statCard.setSpacing(10);
+        statCard.setStyle("-fx-background-color: #2C2C2C; -fx-border-color: " + color + "; -fx-border-width: 2px; -fx-padding: 15px; -fx-border-radius: 10px; -fx-background-radius: 10px;");
 
-        Label numberLabel = new Label(String.valueOf(number));
-        numberLabel.setStyle("-fx-font-size: 48; -fx-font-weight: bold; -fx-text-fill: " + color + ";");
+        Text countText = new Text(String.valueOf(count));
+        countText.setFont(Font.font("Arial", FontWeight.BOLD, 50));
+        countText.setFill(Color.web(color));
 
-        Label textLabel = new Label(label);
-        textLabel.setStyle("-fx-font-size: 14; -fx-text-fill: #333;");
+        Label labelText = new Label(label);
+        labelText.setFont(Font.font("Arial", FontWeight.NORMAL, 20));
+        labelText.setTextFill(Color.LIGHTGRAY);
 
-        statBox.getChildren().addAll(numberLabel, textLabel);
-        return statBox;
+        statCard.getChildren().addAll(countText, labelText);
+        return statCard;
+    }
+
+    private HBox createFooter(Stage primaryStage) {
+        HBox footer = new HBox();
+        footer.setAlignment(Pos.CENTER);
+        footer.setSpacing(40);
+        footer.setStyle("-fx-background-color: #1E1E1E; -fx-padding: 15px;");
+
+        StyledButton tasksButton = createFooterButton(" Tasks", "#3498db");
+        StyledButton categoriesButton = createFooterButton(" Categories", "#3498db");
+        StyledButton prioritiesButton = createFooterButton(" Priorities", "#3498db");
+        StyledButton remindersButton = createFooterButton(" Reminders", "#3498db");
+        StyledButton searchButton = createFooterButton(" Search", "#3498db");
+
+        tasksButton.setOnAction(e -> primaryStage.setScene(TaskManagement.getScene(primaryStage, tasks, categories, priorities, reminders)));
+        categoriesButton.setOnAction(e -> primaryStage.setScene(CategoryManagement.getScene(primaryStage, tasks, categories, priorities, reminders)));
+        prioritiesButton.setOnAction(e -> primaryStage.setScene(PriorityManagement.getScene(primaryStage, tasks, categories, priorities, reminders)));
+        remindersButton.setOnAction(e -> primaryStage.setScene(ReminderManagement.getScene(primaryStage, tasks, categories, priorities, reminders)));
+        searchButton.setOnAction(e -> primaryStage.setScene(SearchTab.getScene(primaryStage, tasks, categories, priorities, reminders)));
+
+        footer.getChildren().addAll(tasksButton, categoriesButton, prioritiesButton, remindersButton, searchButton);
+        return footer;
+    }
+
+    private StyledButton createFooterButton(String text, String color) {
+        StyledButton button = new StyledButton(text);
+        button.setStyle("-fx-font-size: 16px; -fx-background-color: " + color + "; -fx-text-fill: white; -fx-padding: 10px 20px; -fx-border-radius: 10px; -fx-background-radius: 10px;");
+        button.setPrefHeight(50);
+        return button;
     }
 
     private int getTotalTasks() {
-        return this.tasks != null ? this.tasks.size() : 0;
+        return tasks != null ? tasks.size() : 0;
     }
 
     private int getTasksByStatus(Task.Status status) {
-        return this.tasks != null ? (int) this.tasks.stream().filter(task -> task.getStatus() == status).count() : 0;
+        return tasks != null ? (int) tasks.stream().filter(task -> task.getStatus() == status).count() : 0;
     }
 
     private int getTasksDueIn7Days() {
-        if (this.tasks == null) return 0;
+        if (tasks == null) return 0;
 
         LocalDate today = LocalDate.now();
         LocalDate sevenDaysLater = today.plusDays(7);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-        return (int) this.tasks.stream()
+        return (int) tasks.stream()
                 .filter(task -> {
                     LocalDate deadline = LocalDate.parse(task.getDeadline(), formatter);
                     return deadline.isAfter(today.minusDays(1)) && deadline.isBefore(sevenDaysLater.plusDays(1));
@@ -158,3 +193,4 @@ public class Main extends Application {
         launch(args);
     }
 }
+

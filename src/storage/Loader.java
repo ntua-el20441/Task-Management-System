@@ -13,24 +13,36 @@ public class Loader {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public static <T> List<T> loadFromJson(String filePath, TypeReference<List<T>> typeReference) {
+        File file = new File(filePath);
+
+        if (!file.exists()) {
+            System.err.println("File not found: " + filePath + ". Returning an empty list.");
+            return new ArrayList<>();
+        }
+
         try {
-            return objectMapper.readValue(new File(filePath), typeReference);
+            return objectMapper.readValue(file, typeReference);
         } catch (IOException e) {
-            System.err.println("Error reading data from JSON: " + e.getMessage());
+            System.err.println("Error reading data from JSON file: " + filePath + ". Error: " + e.getMessage());
             return new ArrayList<>();
         }
     }
 
     public static <T> void saveToJson(String filePath, List<T> data) {
-        if (data == null || data.isEmpty()) {
-            System.out.println("No data to save. Skipping file write.");
-            return;
-        }
-
+        File file = new File(filePath);
         try {
-            objectMapper.writeValue(new File(filePath), data);
+            if (!file.exists()) {
+                if (file.getParentFile() != null) {
+                    file.getParentFile().mkdirs();
+                }
+                file.createNewFile();
+            }
+
+            objectMapper.writeValue(file, data == null ? new ArrayList<>() : data);
+            System.out.println("Data successfully saved to " + filePath);
         } catch (IOException e) {
-            System.err.println("Error writing data to JSON: " + e.getMessage());
+            System.err.println("Error writing data to JSON file: " + filePath + ". Error: " + e.getMessage());
         }
     }
 }
+
