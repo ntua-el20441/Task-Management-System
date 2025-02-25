@@ -54,7 +54,7 @@ Ensure you have:
 
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/.NEK/Task-Management-System.git
+   git clone https://github.com/ntua-el20441/Task-Management-System.git
    cd Task-Management-System
    ./run.sh
 
