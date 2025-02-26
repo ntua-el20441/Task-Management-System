@@ -59,5 +59,7 @@ Ensure you have:
    ```bash
    git clone https://github.com/ntua-el20441/Task-Management-System.git
    cd Task-Management-System
+   javac --module-path <path-to-javafx-sdk>/lib --add-modules javafx.controls -cp "lib/*" -d bin src/models/*.java src/application/*.java src/storage/*.java src/components/*.java
+   java --module-path <path-to-javafx-sdk>/lib --add-modules javafx.controls -cp "bin:lib/*" application.Main
    ./run.sh
 
