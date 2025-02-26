@@ -1,1 +1,147 @@
-[{"name":"Work","tasks":[]}]
+[
+  {
+    "name": "Work",
+    "tasks": [
+      {
+        "id": 21,
+        "title": "Draft Proposal",
+        "description": "Outline the initial proposal for the new project.",
+        "category": "Work",
+        "priority": "High",
+        "status": "OPEN",
+        "deadline": "2025-01-15",
+        "reminders": [
+          {
+            "date": "2025-01-10",
+            "taskId": 21
+          }
+        ]
+      },
+      {
+        "id": 22,
+        "title": "Organize Workshop",
+        "description": "Plan the schedule and materials for the departmental workshop.",
+        "category": "Work",
+        "priority": "Medium",
+        "status": "DELAYED",
+        "deadline": "2025-01-25",
+        "reminders": [
+          {
+            "date": "2025-01-20",
+            "taskId": 22
+          }
+        ]
+      },
+      {
+        "id": 23,
+        "title": "Review Contracts",
+        "description": "Assess the renewal contracts for existing suppliers.",
+        "category": "Work",
+        "priority": "High",
+        "status": "COMPLETED",
+        "deadline": "2024-12-15",
+        "reminders": []
+      }
+    ]
+  },
+  {
+    "name": "House",
+    "tasks": [
+      {
+        "id": 24,
+        "title": "Paint Living Room",
+        "description": "Buy paint and repaint the living room walls.",
+        "category": "House",
+        "priority": "Medium",
+        "status": "OPEN",
+        "deadline": "2025-02-05",
+        "reminders": [
+          {
+            "date": "2025-02-01",
+            "taskId": 24
+          }
+        ]
+      },
+      {
+        "id": 25,
+        "title": "Clean Attic",
+        "description": "Organize and clean out old boxes in the attic.",
+        "category": "House",
+        "priority": "Low",
+        "status": "DELAYED",
+        "deadline": "2024-12-10",
+        "reminders": []
+      }
+    ]
+  },
+  {
+    "name": "Health",
+    "tasks": [
+      {
+        "id": 26,
+        "title": "Yoga Session",
+        "description": "Attend a 1-hour yoga class.",
+        "category": "Health",
+        "priority": "High",
+        "status": "DELAYED",
+        "deadline": "2024-11-30",
+        "reminders": [
+          {
+            "date": "2024-11-28",
+            "taskId": 26
+          }
+        ]
+      },
+      {
+        "id": 27,
+        "title": "Healthy Meal Prep",
+        "description": "Plan and prepare healthy meals for the week.",
+        "category": "Health",
+        "priority": "Medium",
+        "status": "OPEN",
+        "deadline": "2024-12-01",
+        "reminders": []
+      }
+    ]
+  },
+  {
+    "name": "Personal",
+    "tasks": [
+      {
+        "id": 28,
+        "title": "Plan Vacation",
+        "description": "Research travel options and accommodations for summer vacation.",
+        "category": "Personal",
+        "priority": "High",
+        "status": "DELAYED",
+        "deadline": "2025-03-01",
+        "reminders": [
+          {
+            "date": "2025-02-15",
+            "taskId": 28
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Uni",
+    "tasks": [
+      {
+        "id": 29,
+        "title": "Register for Courses",
+        "description": "Complete the online registration for next semester's courses.",
+        "category": "Uni",
+        "priority": "Medium",
+        "status": "OPEN",
+        "deadline": "2025-01-05",
+        "reminders": [
+          {
+            "date": "2024-12-28",
+            "taskId": 29
+          }
+        ]
+      }
+    ]
+  }
+]
